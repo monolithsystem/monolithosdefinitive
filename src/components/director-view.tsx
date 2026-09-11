@@ -26,6 +26,7 @@ import {
   isFilaAtiva,
   isPendenteAtendente,
 } from "@/lib/theme-classes";
+import { EmptyState, EMPTY_VALUE, EMPTY_VALUE_CLASS } from "@/components/empty-state";
 import {
   Area,
   AreaChart,
@@ -45,13 +46,9 @@ interface DirectorViewProps {
   onUnlock: (value: boolean) => void;
 }
 
-const PROCEDURE_DATA = [
-  { name: "Limpeza", value: 12 },
-  { name: "Aparelho", value: 8 },
-  { name: "Geral", value: 15 },
-  { name: "Implante", value: 5 },
-  { name: "Estetica", value: 9 },
-];
+const EMPTY_TITLE = "Painel estratégico aguardando sincronização";
+const EMPTY_SUBTITLE =
+  "Insira novas movimentações de pacientes para projetar os indicadores de procedimentos e taxas de confirmação.";
 
 export function DirectorView({ unlocked, onUnlock }: DirectorViewProps) {
   const [pin, setPin] = useState("");
