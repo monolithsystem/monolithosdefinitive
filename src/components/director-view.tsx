@@ -465,12 +465,14 @@ function SummaryCard({
   value,
   accent,
   iconColor,
+  empty = false,
 }: {
   icon: React.ReactNode;
   label: string;
   value: number | string;
   accent: string;
   iconColor: string;
+  empty?: boolean;
 }) {
   return (
     <div
@@ -490,7 +492,14 @@ function SummaryCard({
           >
             {label}
           </p>
-          <p className={cn("mt-2 font-serif text-3xl font-semibold", VALUE_TEXT)}>{value}</p>
+          <p
+            className={cn(
+              "mt-2 font-serif text-3xl font-semibold",
+              empty ? EMPTY_VALUE_CLASS : VALUE_TEXT,
+            )}
+          >
+            {value}
+          </p>
         </div>
         <div className={cn("shrink-0", iconColor)}>{icon}</div>
       </div>
