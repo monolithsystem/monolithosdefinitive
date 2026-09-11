@@ -20,6 +20,10 @@ import {
   isConfirmado,
   isFilaAtiva,
 } from "@/lib/theme-classes";
+import { EmptyState, EMPTY_VALUE, EMPTY_VALUE_CLASS } from "@/components/empty-state";
+
+const EMPTY_TITLE = "Aguardando fluxo de registros ativos";
+const EMPTY_SUBTITLE = "O motor de busca em tempo real está monitorando o sistema.";
 
 const MESES = [
   "Janeiro",
