@@ -22,6 +22,12 @@ const PLATINUM =
 /** Fallback de segurança: status vazio ou desconhecido. */
 const TITANIUM =
   "bg-slate-100 text-slate-700 ring-1 ring-slate-300 dark:bg-zinc-800 dark:text-zinc-400 dark:ring-zinc-700";
+/** Vermelho rubi / carmim de urgência — pendente atendente. */
+const RUBY =
+  "bg-rose-50 text-rose-800 border border-rose-100 dark:bg-rose-950/40 dark:text-rose-400 dark:border-rose-500/20";
+/** Cinza carbono apagado — cancelado (dado morto). */
+const CARBON =
+  "bg-zinc-100 text-zinc-500 border border-zinc-200 dark:bg-zinc-900/60 dark:text-zinc-600 dark:border-zinc-800";
 
 function titleCase(value: string): string {
   return value
@@ -113,9 +119,9 @@ export function getStatusStyle(status?: string | null): StatusStyle {
   if (s.includes("pendente") || s.includes("atendente")) {
     return {
       label: "Pendente Atendente",
-      className: ORANGE,
-      dot: "bg-orange-400",
-      hex: "#F97316",
+      className: RUBY,
+      dot: "bg-rose-500 dark:bg-rose-400",
+      hex: "#E11D48",
       pulse: true,
     };
   }
@@ -123,9 +129,9 @@ export function getStatusStyle(status?: string | null): StatusStyle {
   if (s.includes("cancelado")) {
     return {
       label: "Cancelado",
-      className: PLATINUM,
-      dot: "bg-slate-400",
-      hex: "#64748B",
+      className: CARBON,
+      dot: "bg-zinc-400 dark:bg-zinc-600",
+      hex: "#A1A1AA",
       pulse: false,
     };
   }

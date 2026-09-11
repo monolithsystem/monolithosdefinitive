@@ -50,18 +50,26 @@ function norm(status?: string | null) {
     .replace(/[\u0300-\u036f]/g, "");
 }
 
+/** Cancelado: dado morto — sempre filtrado de cards e gráficos. */
+export function isCancelado(status?: string | null) {
+  return norm(status).includes("cancelado");
+}
+
 /** Agrupamento estrito dos status da planilha (coluna E). */
 export function isConfirmado(status?: string | null) {
-  return norm(status).includes("confirmado");
+  const s = norm(status);
+  return !isCancelado(s) && s.includes("confirmado");
 }
 
 export function isEmTransicao(status?: string | null) {
   const s = norm(status);
+  if (isCancelado(s)) return false;
   return s.includes("espera") || s.includes("aguardar") || s.includes("pendente atendente");
 }
 
 /** Fila ativa: agendados + confirmados + etapas de negociação. */
 export function isFilaAtiva(status?: string | null) {
   const s = norm(status);
+  if (isCancelado(s)) return false;
   return s.includes("agendado") || isConfirmado(s) || isEmTransicao(s);
 }

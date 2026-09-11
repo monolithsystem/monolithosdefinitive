@@ -16,8 +16,11 @@ import { useTheme } from "@/hooks/use-theme";
 import { useAppointments } from "@/hooks/use-appointments";
 import {
   SURFACE,
+  CARD_SURFACE,
   VALUE_TEXT,
+  LABEL_TEXT,
   tooltipStyles,
+  isCancelado,
   isConfirmado,
   isEmTransicao,
   isFilaAtiva,
@@ -218,7 +221,10 @@ function DirectorDashboard({ onLogout }: { onLogout: () => void }) {
     [appointments],
   );
   const campanhasReativacao = useMemo(
-    () => appointments.filter((a) => Number(a.tentativasReativacao ?? 0) > 0).length,
+    () =>
+      appointments.filter(
+        (a) => !isCancelado(a.status) && Number(a.tentativasReativacao ?? 0) > 0,
+      ).length,
     [appointments],
   );
   const taxaConfirmacao =
@@ -227,7 +233,7 @@ function DirectorDashboard({ onLogout }: { onLogout: () => void }) {
   const statusData = useMemo(
     () => [
       { name: "Confirmados", value: confirmados, hex: "#F59E0B" },
-      { name: "Em Transição", value: emTransicao, hex: isLight ? "#E2E8F0" : "#334155" },
+      { name: "Em Transição", value: emTransicao, hex: isLight ? "#94A3B8" : "#64748B" },
     ],
     [confirmados, emTransicao, isLight],
   );
@@ -260,29 +266,29 @@ function DirectorDashboard({ onLogout }: { onLogout: () => void }) {
           icon={<Users className="h-5 w-5" strokeWidth={1.5} />}
           label="Total Agendados"
           value={totalAgendados}
-          accent="border-l-4 border-l-amber-500"
+          accent="border-l-4 border-l-amber-500/60 dark:border-l-amber-500"
           iconColor="text-amber-500"
         />
         <SummaryCard
           icon={<TrendingUp className="h-5 w-5" strokeWidth={1.5} />}
           label="Taxa de Confirmação"
           value={taxaConfirmacao}
-          accent="border-l-4 border-l-emerald-600/40"
-          iconColor="text-emerald-500"
+          accent="border-l-4 border-l-emerald-600/60 dark:border-l-emerald-600"
+          iconColor="text-emerald-600 dark:text-emerald-500"
         />
         <SummaryCard
           icon={<AlertTriangle className="h-5 w-5" strokeWidth={1.5} />}
           label="Pendências de Confirmação"
           value={emTransicao}
-          accent="border-l-4 border-l-rose-700/40"
-          iconColor="text-rose-500"
+          accent="border-l-4 border-l-rose-600/60 dark:border-l-rose-600"
+          iconColor="text-rose-600 dark:text-rose-500"
         />
         <SummaryCard
           icon={<RefreshCw className="h-5 w-5" strokeWidth={1.5} />}
           label="Campanhas de Reativação"
           value={campanhasReativacao}
-          accent="border-l-4 border-l-rose-700/40"
-          iconColor="text-rose-500"
+          accent="border-l-4 border-l-purple-600/60 dark:border-l-purple-500"
+          iconColor="text-purple-600 dark:text-purple-400"
         />
       </div>
 
@@ -309,13 +315,13 @@ function DirectorDashboard({ onLogout }: { onLogout: () => void }) {
                   dataKey="name"
                   tickLine={false}
                   axisLine={false}
-                  tick={{ fontSize: 11, fill: isLight ? "#64748B" : "#94A3B8" }}
+                  tick={{ fontSize: 11, fill: isLight ? "#475569" : "#94A3B8" }}
                 />
                 <YAxis
                   tickLine={false}
                   axisLine={false}
                   allowDecimals={false}
-                  tick={{ fontSize: 11, fill: isLight ? "#64748B" : "#94A3B8" }}
+                  tick={{ fontSize: 11, fill: isLight ? "#475569" : "#94A3B8" }}
                 />
                 <Tooltip
                   cursor={{ stroke: "rgba(212,175,55,0.2)" }}
@@ -363,16 +369,41 @@ function DirectorDashboard({ onLogout }: { onLogout: () => void }) {
                 </Pie>
                 <Tooltip
                   cursor={false}
-                  contentStyle={tip.contentStyle}
-                  labelStyle={tip.labelStyle}
-                  itemStyle={tip.itemStyle}
                   wrapperStyle={tip.wrapperStyle}
                   allowEscapeViewBox={tip.allowEscapeViewBox}
+                  content={({ active, payload }) => {
+                    if (!active || !payload?.length) return null;
+                    const item = payload[0];
+                    const name = String(item?.name ?? "");
+                    const isTransicao = name.toLowerCase().includes("transi");
+                    const color = isTransicao ? "#64748B" : isLight ? "#B45309" : "#F59E0B";
+                    return (
+                      <div style={tip.contentStyle}>
+                        <span style={{ ...tip.itemStyle, color }}>
+                          {name}: {item?.value}
+                        </span>
+                      </div>
+                    );
+                  }}
                 />
                 <Legend
-                  wrapperStyle={{ fontSize: "11px", color: isLight ? "#64748B" : "#94A3B8" }}
                   iconType="circle"
                   iconSize={8}
+                  content={() => (
+                    <div className="flex items-center justify-center gap-6 pt-2">
+                      {statusData.map((entry) => (
+                        <span key={entry.name} className="flex items-center gap-2">
+                          <span
+                            className="h-2 w-2 shrink-0 rounded-full"
+                            style={{ backgroundColor: entry.hex }}
+                          />
+                          <span className="text-[11px] font-medium text-zinc-900 dark:text-white">
+                            {entry.name}
+                          </span>
+                        </span>
+                      ))}
+                    </div>
+                  )}
                 />
               </PieChart>
             </ResponsiveContainer>
@@ -417,14 +448,19 @@ function SummaryCard({
   return (
     <div
       className={cn(
-        "group relative animate-fade-in overflow-hidden p-5 transition-all duration-500 hover:border-amber-500/20",
-        SURFACE,
+        "group relative animate-fade-in overflow-hidden p-5 transition-all duration-500",
+        CARD_SURFACE,
         accent,
       )}
     >
       <div className="flex items-center justify-between">
         <div>
-          <p className="text-[11px] font-medium uppercase tracking-[0.14em] text-muted-foreground">
+          <p
+            className={cn(
+              "text-[11px] font-medium uppercase tracking-[0.14em]",
+              LABEL_TEXT,
+            )}
+          >
             {label}
           </p>
           <p className={cn("mt-2 font-serif text-3xl font-semibold", VALUE_TEXT)}>{value}</p>
