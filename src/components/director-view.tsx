@@ -24,6 +24,7 @@ import {
   isConfirmado,
   isEmTransicao,
   isFilaAtiva,
+  isPendenteAtendente,
 } from "@/lib/theme-classes";
 import {
   Area,
@@ -215,6 +216,11 @@ function DirectorDashboard({ onLogout }: { onLogout: () => void }) {
     () => appointments.filter((a) => isEmTransicao(a.status)).length,
     [appointments],
   );
+  // Estrito: conta APENAS linhas cujo status contém 'pendente atendente'.
+  const pendenciasConfirmacao = useMemo(
+    () => appointments.filter((a) => isPendenteAtendente(a.status)).length,
+    [appointments],
+  );
   // Fila ativa: agendado + confirmado + pendente atendente + espera + aguardar.
   const totalAgendados = useMemo(
     () => appointments.filter((a) => isFilaAtiva(a.status)).length,
@@ -279,7 +285,7 @@ function DirectorDashboard({ onLogout }: { onLogout: () => void }) {
         <SummaryCard
           icon={<AlertTriangle className="h-5 w-5" strokeWidth={1.5} />}
           label="Pendências de Confirmação"
-          value={emTransicao}
+          value={pendenciasConfirmacao}
           accent="border-l-4 border-l-rose-600/60 dark:border-l-rose-600"
           iconColor="text-rose-600 dark:text-rose-500"
         />

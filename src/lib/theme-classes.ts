@@ -67,6 +67,13 @@ export function isEmTransicao(status?: string | null) {
   return s.includes("espera") || s.includes("aguardar") || s.includes("pendente atendente");
 }
 
+/** Estrito: apenas 'pendente atendente' — sem misturar outros status. */
+export function isPendenteAtendente(status?: string | null) {
+  const s = norm(status);
+  if (isCancelado(s)) return false;
+  return s.includes("pendente atendente");
+}
+
 /** Fila ativa: agendados + confirmados + etapas de negociação. */
 export function isFilaAtiva(status?: string | null) {
   const s = norm(status);
