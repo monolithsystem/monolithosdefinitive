@@ -325,8 +325,11 @@ function DirectorDashboard({ onLogout }: { onLogout: () => void }) {
           subtitle="Volume por procedimento no período"
         >
           <div className="mt-4 h-[300px]">
+            {semProcedimentos ? (
+              <EmptyState title={EMPTY_TITLE} subtitle={EMPTY_SUBTITLE} />
+            ) : (
             <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={PROCEDURE_DATA} margin={{ top: 10, right: 8, left: -18, bottom: 0 }}>
+              <AreaChart data={procedureData} margin={{ top: 10, right: 8, left: -18, bottom: 0 }}>
                 <defs>
                   <linearGradient id="goldArea" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="0%" stopColor="#D4AF37" stopOpacity={0.15} />
