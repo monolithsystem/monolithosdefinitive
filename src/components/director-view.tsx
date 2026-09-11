@@ -26,6 +26,7 @@ import {
   isFilaAtiva,
   isPendenteAtendente,
 } from "@/lib/theme-classes";
+import { EmptyState, EMPTY_VALUE, EMPTY_VALUE_CLASS } from "@/components/empty-state";
 import {
   Area,
   AreaChart,
@@ -45,13 +46,9 @@ interface DirectorViewProps {
   onUnlock: (value: boolean) => void;
 }
 
-const PROCEDURE_DATA = [
-  { name: "Limpeza", value: 12 },
-  { name: "Aparelho", value: 8 },
-  { name: "Geral", value: 15 },
-  { name: "Implante", value: 5 },
-  { name: "Estetica", value: 9 },
-];
+const EMPTY_TITLE = "Painel estratégico aguardando sincronização";
+const EMPTY_SUBTITLE =
+  "Insira novas movimentações de pacientes para projetar os indicadores de procedimentos e taxas de confirmação.";
 
 export function DirectorView({ unlocked, onUnlock }: DirectorViewProps) {
   const [pin, setPin] = useState("");
@@ -233,8 +230,28 @@ function DirectorDashboard({ onLogout }: { onLogout: () => void }) {
       ).length,
     [appointments],
   );
+  const semDados = appointments.length === 0;
+
   const taxaConfirmacao =
     totalAgendados > 0 ? `${Math.round((confirmados / totalAgendados) * 100)}%` : "0%";
+
+  // Coluna H (Procedimento): agrupamento real e dinâmico da planilha.
+  const procedureData = useMemo(() => {
+    const map = new Map<string, { name: string; value: number }>();
+    for (const a of appointments) {
+      if (isCancelado(a.status)) continue;
+      const raw = (a.procedimento ?? "").trim();
+      if (!raw) continue;
+      const key = raw.toLowerCase().trim();
+      const entry = map.get(key);
+      if (entry) entry.value += 1;
+      else map.set(key, { name: raw, value: 1 });
+    }
+    return [...map.values()].sort((a, b) => b.value - a.value);
+  }, [appointments]);
+
+  const semProcedimentos = procedureData.length === 0;
+  const semStatus = confirmados + emTransicao === 0;
 
   const statusData = useMemo(
     () => [
@@ -271,28 +288,32 @@ function DirectorDashboard({ onLogout }: { onLogout: () => void }) {
         <SummaryCard
           icon={<Users className="h-5 w-5" strokeWidth={1.5} />}
           label="Total Agendados"
-          value={totalAgendados}
+          value={semDados ? EMPTY_VALUE : totalAgendados}
+          empty={semDados}
           accent="border-l-4 border-l-amber-500/60 dark:border-l-amber-500"
           iconColor="text-amber-500"
         />
         <SummaryCard
           icon={<TrendingUp className="h-5 w-5" strokeWidth={1.5} />}
           label="Taxa de Confirmação"
-          value={taxaConfirmacao}
+          value={semDados ? EMPTY_VALUE : taxaConfirmacao}
+          empty={semDados}
           accent="border-l-4 border-l-emerald-600/60 dark:border-l-emerald-600"
           iconColor="text-emerald-600 dark:text-emerald-500"
         />
         <SummaryCard
           icon={<AlertTriangle className="h-5 w-5" strokeWidth={1.5} />}
           label="Pendências de Confirmação"
-          value={pendenciasConfirmacao}
+          value={semDados ? EMPTY_VALUE : pendenciasConfirmacao}
+          empty={semDados}
           accent="border-l-4 border-l-rose-600/60 dark:border-l-rose-600"
           iconColor="text-rose-600 dark:text-rose-500"
         />
         <SummaryCard
           icon={<RefreshCw className="h-5 w-5" strokeWidth={1.5} />}
           label="Campanhas de Reativação"
-          value={campanhasReativacao}
+          value={semDados ? EMPTY_VALUE : campanhasReativacao}
+          empty={semDados}
           accent="border-l-4 border-l-purple-600/60 dark:border-l-purple-500"
           iconColor="text-purple-600 dark:text-purple-400"
         />
@@ -304,8 +325,11 @@ function DirectorDashboard({ onLogout }: { onLogout: () => void }) {
           subtitle="Volume por procedimento no período"
         >
           <div className="mt-4 h-[300px]">
+            {semProcedimentos ? (
+              <EmptyState title={EMPTY_TITLE} subtitle={EMPTY_SUBTITLE} />
+            ) : (
             <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={PROCEDURE_DATA} margin={{ top: 10, right: 8, left: -18, bottom: 0 }}>
+              <AreaChart data={procedureData} margin={{ top: 10, right: 8, left: -18, bottom: 0 }}>
                 <defs>
                   <linearGradient id="goldArea" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="0%" stopColor="#D4AF37" stopOpacity={0.15} />
@@ -444,12 +468,14 @@ function SummaryCard({
   value,
   accent,
   iconColor,
+  empty = false,
 }: {
   icon: React.ReactNode;
   label: string;
   value: number | string;
   accent: string;
   iconColor: string;
+  empty?: boolean;
 }) {
   return (
     <div
@@ -469,7 +495,14 @@ function SummaryCard({
           >
             {label}
           </p>
-          <p className={cn("mt-2 font-serif text-3xl font-semibold", VALUE_TEXT)}>{value}</p>
+          <p
+            className={cn(
+              "mt-2 font-serif text-3xl font-semibold",
+              empty ? EMPTY_VALUE_CLASS : VALUE_TEXT,
+            )}
+          >
+            {value}
+          </p>
         </div>
         <div className={cn("shrink-0", iconColor)}>{icon}</div>
       </div>

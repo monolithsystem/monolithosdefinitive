@@ -20,6 +20,10 @@ import {
   isConfirmado,
   isFilaAtiva,
 } from "@/lib/theme-classes";
+import { EmptyState, EMPTY_VALUE, EMPTY_VALUE_CLASS } from "@/components/empty-state";
+
+const EMPTY_TITLE = "Aguardando fluxo de registros ativos";
+const EMPTY_SUBTITLE = "O motor de busca em tempo real está monitorando o sistema.";
 
 const MESES = [
   "Janeiro",
@@ -80,6 +84,9 @@ export function ReceptionView() {
     );
   }, [appointments, search]);
 
+  // Sem registros reais da planilha: cards e tabela entram em modo vazio.
+  const semDados = appointments.length === 0;
+
   // Volume bruto total de linhas da planilha.
   const historicos = appointments.length;
 
@@ -139,7 +146,8 @@ export function ReceptionView() {
         <StatCard
           icon={<Users className="h-5 w-5" strokeWidth={1.5} />}
           label="Atendimentos Históricos"
-          value={historicos}
+          value={semDados ? EMPTY_VALUE : historicos}
+          empty={semDados}
           accent="border-l-4 border-l-slate-400/50 dark:border-l-slate-400"
           iconColor="text-slate-500 dark:text-slate-400"
         />
@@ -147,14 +155,16 @@ export function ReceptionView() {
         <StatCard
           icon={<Calendar className="h-5 w-5" strokeWidth={1.5} />}
           label="Com Horário Marcado"
-          value={filaAtiva}
+          value={semDados ? EMPTY_VALUE : filaAtiva}
+          empty={semDados}
           accent="border-l-4 border-l-amber-500/50 dark:border-l-amber-500"
           iconColor="text-amber-600 dark:text-amber-500"
         />
         <StatCard
           icon={<CheckCircle2 className="h-5 w-5" strokeWidth={1.5} />}
           label="Confirmados"
-          value={confirmados}
+          value={semDados ? EMPTY_VALUE : confirmados}
+          empty={semDados}
           accent="border-l-4 border-l-emerald-600/50 dark:border-l-emerald-600"
           iconColor="text-emerald-600 dark:text-emerald-500"
         />
@@ -162,7 +172,8 @@ export function ReceptionView() {
         <StatCard
           icon={<RefreshCw className="h-5 w-5" strokeWidth={1.5} />}
           label="Pacientes em Reativação"
-          value={emReativacao}
+          value={semDados ? EMPTY_VALUE : emReativacao}
+          empty={semDados}
           accent="border-l-4 border-l-purple-600/50 dark:border-l-purple-500"
           iconColor="text-purple-600 dark:text-purple-400"
         />
@@ -171,7 +182,7 @@ export function ReceptionView() {
       <div className="mt-6 flex items-center gap-3">
         <div className="relative max-w-md flex-1">
           <Search
-            className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400"
+            className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500 dark:text-zinc-400"
             strokeWidth={1.5}
           />
           <input
@@ -214,12 +225,14 @@ export function ReceptionView() {
             <tbody>
               {filtered.length === 0 && (
                 <tr>
-                  <td colSpan={7} className="p-12 text-center">
-                    <p className="text-sm text-muted-foreground">
-                      {search
-                        ? "Nenhum paciente encontrado para esta busca"
-                        : "Nenhum paciente encontrado"}
-                    </p>
+                  <td colSpan={7} className="p-10">
+                    {search ? (
+                      <p className="text-center text-sm text-muted-foreground">
+                        Nenhum paciente encontrado para esta busca
+                      </p>
+                    ) : (
+                      <EmptyState title={EMPTY_TITLE} subtitle={EMPTY_SUBTITLE} />
+                    )}
                   </td>
                 </tr>
               )}
@@ -307,12 +320,14 @@ function StatCard({
   value,
   accent,
   iconColor,
+  empty = false,
 }: {
   icon: React.ReactNode;
   label: string;
   value: number | string;
   accent: string;
   iconColor: string;
+  empty?: boolean;
 }) {
   return (
     <div
@@ -332,7 +347,14 @@ function StatCard({
           >
             {label}
           </p>
-          <p className={cn("mt-2 font-serif text-3xl font-semibold", VALUE_TEXT)}>{value}</p>
+          <p
+            className={cn(
+              "mt-2 font-serif text-3xl font-semibold",
+              empty ? EMPTY_VALUE_CLASS : VALUE_TEXT,
+            )}
+          >
+            {value}
+          </p>
         </div>
         <div className={cn("shrink-0", iconColor)}>{icon}</div>
       </div>
