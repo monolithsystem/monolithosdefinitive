@@ -16,8 +16,11 @@ import { useTheme } from "@/hooks/use-theme";
 import { useAppointments } from "@/hooks/use-appointments";
 import {
   SURFACE,
+  CARD_SURFACE,
   VALUE_TEXT,
+  LABEL_TEXT,
   tooltipStyles,
+  isCancelado,
   isConfirmado,
   isEmTransicao,
   isFilaAtiva,
@@ -218,7 +221,10 @@ function DirectorDashboard({ onLogout }: { onLogout: () => void }) {
     [appointments],
   );
   const campanhasReativacao = useMemo(
-    () => appointments.filter((a) => Number(a.tentativasReativacao ?? 0) > 0).length,
+    () =>
+      appointments.filter(
+        (a) => !isCancelado(a.status) && Number(a.tentativasReativacao ?? 0) > 0,
+      ).length,
     [appointments],
   );
   const taxaConfirmacao =
