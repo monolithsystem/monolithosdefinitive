@@ -225,12 +225,14 @@ export function ReceptionView() {
             <tbody>
               {filtered.length === 0 && (
                 <tr>
-                  <td colSpan={7} className="p-12 text-center">
-                    <p className="text-sm text-muted-foreground">
-                      {search
-                        ? "Nenhum paciente encontrado para esta busca"
-                        : "Nenhum paciente encontrado"}
-                    </p>
+                  <td colSpan={7} className="p-10">
+                    {search ? (
+                      <p className="text-center text-sm text-muted-foreground">
+                        Nenhum paciente encontrado para esta busca
+                      </p>
+                    ) : (
+                      <EmptyState title={EMPTY_TITLE} subtitle={EMPTY_SUBTITLE} />
+                    )}
                   </td>
                 </tr>
               )}
@@ -318,12 +320,14 @@ function StatCard({
   value,
   accent,
   iconColor,
+  empty = false,
 }: {
   icon: React.ReactNode;
   label: string;
   value: number | string;
   accent: string;
   iconColor: string;
+  empty?: boolean;
 }) {
   return (
     <div
@@ -343,7 +347,14 @@ function StatCard({
           >
             {label}
           </p>
-          <p className={cn("mt-2 font-serif text-3xl font-semibold", VALUE_TEXT)}>{value}</p>
+          <p
+            className={cn(
+              "mt-2 font-serif text-3xl font-semibold",
+              empty ? EMPTY_VALUE_CLASS : VALUE_TEXT,
+            )}
+          >
+            {value}
+          </p>
         </div>
         <div className={cn("shrink-0", iconColor)}>{icon}</div>
       </div>
