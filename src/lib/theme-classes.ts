@@ -17,9 +17,11 @@ export const TITLE_TEXT = "text-foreground";
 export function tooltipStyles(isLight: boolean) {
   return {
     contentStyle: {
-      backgroundColor: isLight ? "rgba(255, 255, 255, 0.9)" : "rgba(10, 10, 10, 0.85)",
+      backgroundColor: isLight ? "rgba(255, 255, 255, 0.8)" : "rgba(10, 10, 10, 0.85)",
       backdropFilter: "blur(12px)",
-      border: "1px solid rgba(212, 175, 55, 0.25)",
+      border: isLight
+        ? "1px solid rgba(228, 228, 231, 0.6)"
+        : "1px solid rgba(212, 175, 55, 0.25)",
       borderRadius: "8px",
       boxShadow: isLight
         ? "0 4px 20px rgba(15, 23, 42, 0.12)"
@@ -27,7 +29,7 @@ export function tooltipStyles(isLight: boolean) {
       padding: "6px 10px",
     },
     labelStyle: {
-      color: isLight ? "#64748B" : "#94A3B8",
+      color: isLight ? "#3F3F46" : "#94A3B8",
       fontSize: "11px",
       fontWeight: "500",
       marginBottom: "2px",
