@@ -230,8 +230,28 @@ function DirectorDashboard({ onLogout }: { onLogout: () => void }) {
       ).length,
     [appointments],
   );
+  const semDados = appointments.length === 0;
+
   const taxaConfirmacao =
     totalAgendados > 0 ? `${Math.round((confirmados / totalAgendados) * 100)}%` : "0%";
+
+  // Coluna H (Procedimento): agrupamento real e dinâmico da planilha.
+  const procedureData = useMemo(() => {
+    const map = new Map<string, { name: string; value: number }>();
+    for (const a of appointments) {
+      if (isCancelado(a.status)) continue;
+      const raw = (a.procedimento ?? "").trim();
+      if (!raw) continue;
+      const key = raw.toLowerCase().trim();
+      const entry = map.get(key);
+      if (entry) entry.value += 1;
+      else map.set(key, { name: raw, value: 1 });
+    }
+    return [...map.values()].sort((a, b) => b.value - a.value);
+  }, [appointments]);
+
+  const semProcedimentos = procedureData.length === 0;
+  const semStatus = confirmados + emTransicao === 0;
 
   const statusData = useMemo(
     () => [
