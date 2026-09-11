@@ -84,6 +84,9 @@ export function ReceptionView() {
     );
   }, [appointments, search]);
 
+  // Sem registros reais da planilha: cards e tabela entram em modo vazio.
+  const semDados = appointments.length === 0;
+
   // Volume bruto total de linhas da planilha.
   const historicos = appointments.length;
 
@@ -143,7 +146,8 @@ export function ReceptionView() {
         <StatCard
           icon={<Users className="h-5 w-5" strokeWidth={1.5} />}
           label="Atendimentos Históricos"
-          value={historicos}
+          value={semDados ? EMPTY_VALUE : historicos}
+          empty={semDados}
           accent="border-l-4 border-l-slate-400/50 dark:border-l-slate-400"
           iconColor="text-slate-500 dark:text-slate-400"
         />
@@ -151,14 +155,16 @@ export function ReceptionView() {
         <StatCard
           icon={<Calendar className="h-5 w-5" strokeWidth={1.5} />}
           label="Com Horário Marcado"
-          value={filaAtiva}
+          value={semDados ? EMPTY_VALUE : filaAtiva}
+          empty={semDados}
           accent="border-l-4 border-l-amber-500/50 dark:border-l-amber-500"
           iconColor="text-amber-600 dark:text-amber-500"
         />
         <StatCard
           icon={<CheckCircle2 className="h-5 w-5" strokeWidth={1.5} />}
           label="Confirmados"
-          value={confirmados}
+          value={semDados ? EMPTY_VALUE : confirmados}
+          empty={semDados}
           accent="border-l-4 border-l-emerald-600/50 dark:border-l-emerald-600"
           iconColor="text-emerald-600 dark:text-emerald-500"
         />
@@ -166,7 +172,8 @@ export function ReceptionView() {
         <StatCard
           icon={<RefreshCw className="h-5 w-5" strokeWidth={1.5} />}
           label="Pacientes em Reativação"
-          value={emReativacao}
+          value={semDados ? EMPTY_VALUE : emReativacao}
+          empty={semDados}
           accent="border-l-4 border-l-purple-600/50 dark:border-l-purple-500"
           iconColor="text-purple-600 dark:text-purple-400"
         />
@@ -175,7 +182,7 @@ export function ReceptionView() {
       <div className="mt-6 flex items-center gap-3">
         <div className="relative max-w-md flex-1">
           <Search
-            className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400"
+            className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500 dark:text-zinc-400"
             strokeWidth={1.5}
           />
           <input
