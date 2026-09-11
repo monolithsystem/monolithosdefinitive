@@ -233,7 +233,7 @@ function DirectorDashboard({ onLogout }: { onLogout: () => void }) {
   const statusData = useMemo(
     () => [
       { name: "Confirmados", value: confirmados, hex: "#F59E0B" },
-      { name: "Em Transição", value: emTransicao, hex: isLight ? "#E2E8F0" : "#334155" },
+      { name: "Em Transição", value: emTransicao, hex: isLight ? "#94A3B8" : "#64748B" },
     ],
     [confirmados, emTransicao, isLight],
   );
@@ -315,13 +315,13 @@ function DirectorDashboard({ onLogout }: { onLogout: () => void }) {
                   dataKey="name"
                   tickLine={false}
                   axisLine={false}
-                  tick={{ fontSize: 11, fill: isLight ? "#64748B" : "#94A3B8" }}
+                  tick={{ fontSize: 11, fill: isLight ? "#475569" : "#94A3B8" }}
                 />
                 <YAxis
                   tickLine={false}
                   axisLine={false}
                   allowDecimals={false}
-                  tick={{ fontSize: 11, fill: isLight ? "#64748B" : "#94A3B8" }}
+                  tick={{ fontSize: 11, fill: isLight ? "#475569" : "#94A3B8" }}
                 />
                 <Tooltip
                   cursor={{ stroke: "rgba(212,175,55,0.2)" }}
@@ -369,16 +369,41 @@ function DirectorDashboard({ onLogout }: { onLogout: () => void }) {
                 </Pie>
                 <Tooltip
                   cursor={false}
-                  contentStyle={tip.contentStyle}
-                  labelStyle={tip.labelStyle}
-                  itemStyle={tip.itemStyle}
                   wrapperStyle={tip.wrapperStyle}
                   allowEscapeViewBox={tip.allowEscapeViewBox}
+                  content={({ active, payload }) => {
+                    if (!active || !payload?.length) return null;
+                    const item = payload[0];
+                    const name = String(item?.name ?? "");
+                    const isTransicao = name.toLowerCase().includes("transi");
+                    const color = isTransicao ? "#64748B" : isLight ? "#B45309" : "#F59E0B";
+                    return (
+                      <div style={tip.contentStyle}>
+                        <span style={{ ...tip.itemStyle, color }}>
+                          {name}: {item?.value}
+                        </span>
+                      </div>
+                    );
+                  }}
                 />
                 <Legend
-                  wrapperStyle={{ fontSize: "11px", color: isLight ? "#64748B" : "#94A3B8" }}
                   iconType="circle"
                   iconSize={8}
+                  content={() => (
+                    <div className="flex items-center justify-center gap-6 pt-2">
+                      {statusData.map((entry) => (
+                        <span key={entry.name} className="flex items-center gap-2">
+                          <span
+                            className="h-2 w-2 shrink-0 rounded-full"
+                            style={{ backgroundColor: entry.hex }}
+                          />
+                          <span className="text-[11px] font-medium text-zinc-900 dark:text-white">
+                            {entry.name}
+                          </span>
+                        </span>
+                      ))}
+                    </div>
+                  )}
                 />
               </PieChart>
             </ResponsiveContainer>
