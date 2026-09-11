@@ -125,7 +125,7 @@ export function ReceptionView() {
             <RefreshCw
               className={cn(
                 "h-4 w-4 text-amber-600 transition-transform duration-500 dark:text-gold",
-                refreshing ? "animate-spin" : "group-hover:rotate-180",
+                refreshing ? "animate-spin-smooth" : "group-hover:rotate-180",
               )}
               strokeWidth={1.75}
             />

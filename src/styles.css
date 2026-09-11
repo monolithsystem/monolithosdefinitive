@@ -242,6 +242,20 @@
   animation: mono-fade-in 0.5s ease-out both;
 }
 
+/* Rotação fluida e linear (0° → 360°) para o botão Atualizar. */
+@keyframes spin-smooth {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@utility animate-spin-smooth {
+  animation: spin-smooth 0.9s linear both;
+}
+
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;
